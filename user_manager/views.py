@@ -303,17 +303,16 @@ class UserView(GenericViewSet, UpdateModelMixin):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             # 在返回的字段中添加tag字段(与 listMixin 的唯一区别)
-            self.add_tag(
-                serializer.data, list(map(lambda x: x.get("id"), serializer.data))
-            )
+            self.add_tag(serializer.data)
             return self.get_paginated_response(serializer.data)
         # 序列化信息
         serializer = self.get_serializer(queryset, many=True)
-        self.add_tag(serializer.data, queryset.values_list("id", flat=True))
+        self.add_tag(serializer.data)
         return Response(serializer.data)
 
-    def add_tag(self, users, user_ids):
+    def add_tag(self, users):
         """给每一个返回的 User 增加一个tag字段"""
+        user_ids = [user.get("id") for user in users]
         user_tag_dic = self.get_user_tag_map(user_ids)
         for user in users:
             # 遍历每一个获取到user 查看其是否有标签
